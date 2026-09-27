@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MUSOR DROP</title>
+<meta name="description" content="Твой высокий шанс на большой дроп — MUSOR DROP. Теперь с PIPIS DROP.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗑️</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0b12;
+    --panel: #15151f;
+    --line: #2a2a3a;
+    --text: #f2f2f2;
+    --muted: #8a8aa0;
+    --pink: #ff2fa8;
+    --yellow: #ffe600;
+    --cyan: #19e3ff;
+    --gray: #7d7d8c;
+    --blue: #3d7bff;
+    --purple: #a24bff;
+    --red: #ff3b3b;
+    --gold: #ffc21a;
+  --legend: #00ffc8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 20% 0%, #ff2fa822 0, transparent 40%),
+      radial-gradient(circle at 80% 100%, #19e3ff1a 0, transparent 40%);
+    color: var(--text);
+    font-family: "Pixelify Sans", monospace;
+    font-size: 19px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 16px; }
+
+  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 8px 0 16px; }
+  .logo {
+    font-family: "Press Start 2P", monospace;
+    font-size: clamp(18px, 5vw, 32px);
+    letter-spacing: 2px;
+    color: var(--yellow);
+    text-shadow: 3px 3px 0 var(--pink), 6px 6px 0 #000;
+    animation: glitch 3s infinite steps(1);
+  }
+  .logo span { color: var(--cyan); }
+  @keyframes glitch {
+    0%, 92%, 100% { transform: none; }
+    93% { transform: translate(2px, -1px) skewX(8deg); }
+    95% { transform: translate(-3px, 1px); }
+    97% { transform: skewX(-6deg); }
+  }
+  .balance {
+    font-family: "Press Start 2P", monospace;
+    font-size: 13px;
+    background: var(--panel);
+    border: 2px solid var(--yellow);
+    padding: 10px 14px;
+    white-space: nowrap;
+  }
+  .balance b { color: var(--yellow); }
+
+  .ticker {
+    overflow: hidden; white-space: nowrap;
+    border-top: 2px dashed var(--pink); border-bottom: 2px dashed var(--pink);
+    padding: 6px 0; margin-bottom: 18px; color: var(--pink);
+  }
+  .ticker div { display: inline-block; padding-left: 100%; animation: tick 28s linear infinite; }
+  @keyframes tick { to { transform: translateX(-100%); } }
+
+  .tabs { display: flex; gap: 10px; margin-bottom: 14px; }
+  .tab {
+    flex: 1; cursor: pointer;
+    font-family: "Press Start 2P", monospace; font-size: 12px;
+    padding: 14px 8px; background: var(--panel); color: var(--muted);
+    border: 2px solid var(--line); transition: .15s;
+  }
+  .tab .price { display: block; margin-top: 8px; font-size: 10px; color: var(--muted); }
+  .tab.active { color: var(--bg); background: var(--yellow); border-color: var(--yellow); }
+  .tab.active .price { color: var(--bg); }
+  .tab[data-case="pipis"].active { background: var(--pink); border-color: var(--pink); color: #fff; }
+  .tab[data-case="pipis"].active .price { color: #fff; }
+
+  .roulette {
+    position: relative; overflow: hidden;
+    background: var(--panel); border: 2px solid var(--line);
+    height: 170px;
+  }
+  .roulette::before, .roulette::after {
+    content: ""; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 2; pointer-events: none;
+  }
+  .roulette::before { left: 0; background: linear-gradient(90deg, var(--panel), transparent); }
+  .roulette::after { right: 0; background: linear-gradient(-90deg, var(--panel), transparent); }
+  .marker {
+    position: absolute; left: 50%; top: 0; bottom: 0; width: 3px; margin-left: -1.5px;
+    background: var(--yellow); z-index: 3; box-shadow: 0 0 12px var(--yellow);
+  }
+  .marker::before, .marker::after {
+    content: ""; position: absolute; left: 50%; transform: translateX(-50%);
+    border: 10px solid transparent;
+  }
+  .marker::before { top: 0; border-top-color: var(--yellow); }
+  .marker::after { bottom: 0; border-bottom-color: var(--yellow); }
+
+  .strip { display: flex; height: 100%; align-items: center; will-change: transform; }
+  .item {
+    flex: 0 0 130px; height: 140px; margin-right: 8px;
+    background: #1d1d2a; border-bottom: 5px solid var(--c, var(--gray));
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 6px;
+    background-image: linear-gradient(0deg, color-mix(in srgb, var(--c) 30%, transparent), transparent 70%);
+  }
+  .item .emo { font-size: 52px; line-height: 1; margin-bottom: 8px; }
+  .item .nm { font-size: 15px; line-height: 1.05; color: var(--text); }
+
+  .controls { display: flex; gap: 10px; margin: 14px 0 6px; flex-wrap: wrap; }
+  .btn {
+    cursor: pointer; border: none;
+    font-family: "Press Start 2P", monospace; font-size: 14px;
+    padding: 18px 20px; color: #000; background: var(--yellow);
+    box-shadow: 4px 4px 0 var(--pink); transition: transform .08s, box-shadow .08s;
+  }
+  .btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--pink); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn.main { flex: 1; min-width: 200px; }
+  .btn.ghost { background: var(--panel); color: var(--text); box-shadow: 4px 4px 0 var(--line); border: 2px solid var(--line); }
+  .btn.free { background: var(--cyan); display: none; }
+
+  .spam { min-height: 58px; color: var(--cyan); padding: 8px 0; font-size: 21px; }
+  .spam .hl { color: var(--yellow); }
+  .spam .pk { color: var(--pink); }
+
+  .odds { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 20px; }
+  .odd { font-size: 15px; padding: 3px 8px; border-left: 4px solid var(--c); background: var(--panel); color: var(--muted); }
+
+  h2 { font-family: "Press Start 2P", monospace; font-size: 14px; margin: 12px 0; color: var(--pink); }
+  .inv { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+  .inv .item { flex: none; width: auto; height: 120px; margin: 0; cursor: pointer; position: relative; }
+  .inv .item .emo { font-size: 40px; }
+  .inv .item .val { font-size: 15px; color: var(--yellow); margin-top: 4px; }
+  .inv .item.nosell:hover::after { content: "ПОКАЗАТЬ"; }
+  .inv .item:hover::after {
+    content: "ПРОДАТЬ"; position: absolute; inset: 0; background: #000c;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Press Start 2P", monospace; font-size: 10px; color: var(--yellow);
+  }
+  .empty { color: var(--muted); grid-column: 1 / -1; }
+
+  /* win modal */
+  .modal {
+    position: fixed; inset: 0; background: #000d; z-index: 10;
+    display: none; align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal.show { display: flex; }
+  .card {
+    background: var(--panel); border: 3px solid var(--c); padding: 24px; text-align: center;
+    max-width: 380px; width: 100%; animation: pop .35s cubic-bezier(.2, 1.6, .4, 1);
+    box-shadow: 0 0 40px color-mix(in srgb, var(--c) 60%, transparent);
+  }
+  @keyframes pop { from { transform: scale(.3) rotate(-8deg); opacity: 0; } }
+  .card .emo { font-size: 96px; }
+  .card .rar { font-family: "Press Start 2P", monospace; font-size: 11px; color: var(--c); margin: 12px 0 6px; }
+  .card .nm { font-size: 26px; }
+  .card .val { color: var(--yellow); margin: 6px 0 16px; }
+  .card .row { display: flex; gap: 10px; }
+  .card .btn { flex: 1; font-size: 11px; padding: 14px 8px; }
+  .card .prize { display: none; margin: 0 0 16px; padding: 12px; border: 2px dashed var(--legend); color: var(--text); font-size: 18px; line-height: 1.25; }
+  .card .prize b { color: var(--legend); font-weight: 700; }
+  .card .prize .code { display: block; margin-top: 8px; font-family: "Press Start 2P", monospace; font-size: 11px; color: var(--yellow); word-break: break-all; }
+  .card.legend .prize { display: block; }
+  .card.legend { animation: pop .35s cubic-bezier(.2, 1.6, .4, 1), rainbow 1.5s linear infinite; }
+  @keyframes rainbow { 0% { border-color: #00ffc8; } 33% { border-color: #ff2fa8; } 66% { border-color: #ffe600; } 100% { border-color: #00ffc8; } }
+  .card a.btn { text-decoration: none; display: flex; align-items: center; justify-content: center; }
+
+  .pipis-rain { position: fixed; inset: 0; pointer-events: none; z-index: 11; overflow: hidden; }
+  .pipis-rain span { position: absolute; top: -60px; font-size: 40px; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(115vh) rotate(720deg); } }
+
+  .promo {
+    display: flex; align-items: center; gap: 14px; text-decoration: none;
+    margin: 6px 0 20px; padding: 14px 16px;
+    background: repeating-linear-gradient(45deg, #1b1320, #1b1320 12px, #20152a 12px, #20152a 24px);
+    border: 3px solid var(--pink); color: var(--text);
+    box-shadow: 5px 5px 0 var(--yellow);
+    transition: transform .1s, box-shadow .1s;
+  }
+  .promo:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--yellow); }
+  .promo .ic {
+    flex: 0 0 52px; height: 52px; border-radius: 50%; background: #29a9eb;
+    display: flex; align-items: center; justify-content: center;
+    animation: bounce 1.2s infinite;
+  }
+  @keyframes bounce { 50% { transform: translateY(-4px) rotate(-8deg); } }
+  .promo .tx { flex: 1; line-height: 1.1; }
+  .promo .t1 { font-family: "Press Start 2P", monospace; font-size: 12px; color: var(--yellow); margin-bottom: 6px; }
+  .promo .t2 { font-size: 19px; }
+  .promo .t2 b { color: var(--cyan); font-weight: normal; }
+  .promo .go {
+    font-family: "Press Start 2P", monospace; font-size: 11px;
+    background: var(--pink); color: #fff; padding: 12px 12px; white-space: nowrap;
+  }
+
+  footer { margin: 30px 0 10px; color: var(--muted); font-size: 15px; text-align: center; line-height: 1.4; }
+  footer a { color: var(--yellow); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  @media (max-width: 520px) {
+    .promo { flex-wrap: wrap; }
+    .promo .go { width: 100%; text-align: center; }
+  }
+
+  @media (max-width: 520px) {
+    body { font-size: 17px; }
+    .roulette { height: 140px; }
+    .item { flex-basis: 100px; height: 115px; }
+    .item .emo { font-size: 40px; }
+    .item .nm { font-size: 13px; }
+    .tab { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">MUSOR<span>DROP</span></div>
+    <div class="balance">KROMER: <b id="bal">100</b></div>
+  </header>
+
+  <div class="ticker"><div>
+    ★ ТВОЙ ВЫСОКИЙ ШАНС НА [[БОЛЬШОЙ ДРОП]] ★ МУСОР ДРОП — ДРОП ДЛЯ [[НАСТОЯЩИХ БИГ ШОТОВ]] ★ НОВИНКА!!! PIPIS DROP — ТЕПЕРЬ С [[PIPIS]] ВНУТРИ ★ 0% ОБМАНА* ★ *ОБМАН ВКЛЮЧЁН В СТОИМОСТЬ ★ ЗВОНИ ПРЯМО СЕЙЧАС [[1-997]] ★
+  </div></div>
+
+  <div class="tabs">
+    <button class="tab active" data-case="musor">🗑️ MUSOR DROP<span class="price">10 KROMER</span></button>
+    <button class="tab" data-case="pipis">🥚 PIPIS DROP<span class="price">25 KROMER</span></button>
+  </div>
+
+  <div class="roulette">
+    <div class="marker"></div>
+    <div class="strip" id="strip"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn main" id="spin">ОТКРЫТЬ ЗА 10</button>
+    <button class="btn ghost" id="sound">🔊</button>
+    <button class="btn free" id="free">[[FREE KROMER]]</button>
+  </div>
+
+  <div class="spam" id="spam">ЭЙ, [[ПОКУПАТЕЛЬ]]! ЖМИ КНОПКУ И СТАНЬ <span class="hl">[[BIG SHOT]]</span>!!</div>
+
+  <a class="promo" href="https://t.me/BIG_SHOT_prod" target="_blank" rel="noopener">
+    <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M9.8 15.2l-.4 5.4c.6 0 .8-.3 1.1-.6l2.6-2.5 5.4 4c1 .5 1.7.3 2-.9l3.6-17c.3-1.5-.6-2.1-1.6-1.7L1.3 9.9c-1.4.6-1.4 1.4-.2 1.8l5.4 1.7L19 5.5c.6-.4 1.1-.2.7.2z"/></svg></div>
+    <div class="tx">
+      <div class="t1">[[ЭКСКЛЮЗИВНОЕ]] ПРЕДЛОЖЕНИЕ!!!</div>
+      <div class="t2">ПОДПИШИСЬ НА <b>@BIG_SHOT_prod</b> И СТАНЬ [[BIG SHOT]] УЖЕ [[СЕГОДНЯ]]!</div>
+    </div>
+    <div class="go">ПОДПИСАТЬСЯ ▶</div>
+  </a>
+
+  <div class="odds" id="odds"></div>
+
+  <h2>ИНВЕНТАРЬ [[ДРАГОЦЕННОСТЕЙ]]</h2>
+  <div class="inv" id="inv"><div class="empty">ПУСТО. КАК И ТВОИ [[ПЕРСПЕКТИВЫ]].</div></div>
+
+  <footer>
+    Создатель: <a href="https://github.com/PtrH1kari" target="_blank" rel="noopener">@PtrH1kari</a> · ТГК: <a href="https://t.me/BIG_SHOT_prod" target="_blank" rel="noopener">@BIG_SHOT_prod</a><br>
+    Фан-страница по мотивам мема. Валюта ненастоящая, ставок и выплат нет — только мусор и pipis.
+  </footer>
+</div>
+
+<div class="modal" id="modal">
+  <div class="card" id="card">
+    <div class="emo" id="wEmo"></div>
+    <div class="rar" id="wRar"></div>
+    <div class="nm" id="wName"></div>
+    <div class="val" id="wVal"></div>
+    <div class="prize" id="wPrize">
+      ТЫ ВЫБИЛ <b>[[ЛЕГЕНДАРНУЮ ДИСКЕТУ]]</b>!!!<br>
+      СДЕЛАЙ СКРИНШОТ ЭТОГО ОКНА И СКИНЬ В ТГК <b>@BIG_SHOT_prod</b>.<br>
+      КТО ПЕРВЫЙ — ТОТ И ПОЛУЧАЕТ [[НАСТОЯЩИЙ ПРИЗ]]!
+      <span class="code" id="wCode"></span>
+    </div>
+    <div class="row">
+      <button class="btn" id="keep">ЗАБРАТЬ</button>
+      <button class="btn ghost" id="sell">ПРОДАТЬ</button>
+      <a class="btn ghost" id="tgBtn" href="https://t.me/BIG_SHOT_prod" target="_blank" rel="noopener" style="display:none">В ТГК ▶</a>
+    </div>
+  </div>
+</div>
+<div class="pipis-rain" id="rain"></div>
+
+<script>
+const R = {
+  gray:   { name: "МУСОРНОЕ",     c: "var(--gray)" },
+  blue:   { name: "ОБЫЧНЫЙ МУСОР", c: "var(--blue)" },
+  purple: { name: "ЭЛИТНЫЙ МУСОР", c: "var(--purple)" },
+  red:    { name: "[[ЗАПРЕЩЁНКА]]", c: "var(--red)" },
+  gold:   { name: "★ PIPIS ★",    c: "var(--gold)" },
+  legend: { name: "★★★ [[ЛЕГЕНДА]] ★★★", c: "var(--legend)" },
+};
+
+const CASES = {
+  musor: {
+    price: 10,
+    items: [
+      { e: "🍌", n: "Кожура банана",      r: "gray",   v: 1,   w: 22 },
+      { e: "🧦", n: "Носок (один)",        r: "gray",   v: 1,   w: 20 },
+      { e: "🧾", n: "Чек из Пятёрочки",    r: "gray",   v: 2,   w: 18 },
+      { e: "🥫", n: "Мятая банка",         r: "blue",   v: 4,   w: 14 },
+      { e: "🔋", n: "Дохлая батарейка",    r: "blue",   v: 5,   w: 11 },
+      { e: "📼", n: "Кассета без плёнки",  r: "purple", v: 12,  w: 7 },
+      { e: "📇", n: "Мини-визитка",         r: "blue",   v: 6,   w: 8 },
+      { e: "📱", n: "Телефон [[ПОЧТИ]] рабочий", r: "purple", v: 18, w: 5 },
+      { e: "🏷️", n: "Наклейка MUSOR DROP",  r: "purple", v: 15,  w: 4 },
+      { e: "💿", n: "Диск «1000 игр»",     r: "red",    v: 45,  w: 2.4 },
+      { e: "🥚", n: "PIPIS",               r: "gold",   v: 150, w: 0.6 },
+      { e: "💾", n: "[[ЛЕГЕНДАРНАЯ]] ДИСКЕТА", r: "legend", v: 9999, w: 0.05 },
+    ],
+  },
+  pipis: {
+    price: 25,
+    items: [
+      { e: "🥚", n: "Пустая скорлупа",     r: "gray",   v: 3,   w: 24 },
+      { e: "🍳", n: "Яичница (не pipis)",  r: "gray",   v: 5,   w: 20 },
+      { e: "🐣", n: "Pipis-младший",       r: "blue",   v: 12,  w: 18 },
+      { e: "🥚", n: "Pipis б/у",           r: "blue",   v: 18,  w: 14 },
+      { e: "📇", n: "Мини-визитка pipis",   r: "blue",   v: 15,  w: 10 },
+      { e: "🪺", n: "Гнездо pipis",        r: "purple", v: 40,  w: 10 },
+      { e: "🏷️", n: "Наклейка PIPIS DROP",  r: "purple", v: 35,  w: 6 },
+      { e: "🎁", n: "Pipis в подарочной упаковке", r: "red", v: 90, w: 5 },
+      { e: "🥚", n: "PIPIS",               r: "gold",   v: 250, w: 6 },
+      { e: "👑", n: "[[КОРОЛЕВСКИЙ]] PIPIS", r: "gold", v: 777, w: 1 },
+      { e: "💾", n: "[[ЛЕГЕНДАРНАЯ]] ДИСКЕТА", r: "legend", v: 9999, w: 0.05 },
+    ],
+  },
+};
+
+const LINES = {
+  gray: [
+    "ПОЗДРАВЛЯЮ!!! ЭТО [[МУСОР]]! ИМЕННО ТО, ЧТО ТЕБЕ <span class='hl'>[[ОБЕЩАЛИ]]</span>!",
+    "ТВОЙ ВЫСОКИЙ ШАНС НА БОЛЬШОЙ ДРОП... <span class='pk'>[[СРАБОТАЛ НАОБОРОТ]]</span>.",
+    "НЕ ГРУСТИ, [[ДРУГ]]! МУСОР ТОЖЕ [[ИНВЕСТИЦИЯ]]!",
+  ],
+  blue: [
+    "ХО-ХО! ЭТО [[ПОЧТИ]] НЕ МУСОР! ПОЧТИ!!",
+    "ОТЛИЧНЫЙ ДРОП ДЛЯ <span class='hl'>[[МАЛЕНЬКОГО ШОТА]]</span>. КРУТИ ЕЩЁ!",
+  ],
+  purple: [
+    "ВАУ! ЭЛИТНЫЙ МУСОР! ТЫ ТЕПЕРЬ <span class='hl'>[[СРЕДНИЙ ШОТ]]</span>!",
+    "ЭТОТ МУСОР ЛЕЖАЛ НА [[ПРЕМИУМ]]-ПОМОЙКЕ!",
+  ],
+  red: [
+    "ТЫ ЭТОГО НЕ ВИДЕЛ. Я ЭТОГО НЕ [[ПРОДАВАЛ]].",
+    "[[ЗАПРЕЩЁНКА]]!!! ТЫ ПОЧТИ <span class='hl'>[[BIG SHOT]]</span>!",
+  ],
+  legend: [
+    "Я... Я НЕ ВЕРЮ СВОИМ [[ПИКСЕЛЯМ]]!!! <span class='hl'>[[ДИСКЕТА]]</span>!!! БЫСТРЕЕ В ТГК!!!",
+    "ЭТО ЖЕ... <span class='pk'>[[ТА САМАЯ ДИСКЕТА]]</span>!!! ТЫ [[BIGGEST SHOT]]!!! СКРИНЬ И В ТГК!!!",
+  ],
+  gold: [
+    "<span class='hl'>[[PIPIS]]</span>!!!!! ТЫ ТЕПЕРЬ [[BIG SHOT]] НАВСЕГДА!!!",
+    "ЭТО... [[PIPIS]]... Я ПЛАЧУ [[ДЕНЕЖНЫМИ СЛЕЗАМИ]]!!",
+  ],
+};
+
+const $ = (id) => document.getElementById(id);
+let state = { bal: 100, inv: [], cur: "musor", spinning: false, sound: true };
+let pending = null;
+
+// ---------- audio ----------
+let ac;
+function beep(freq, dur = 0.04, type = "square", vol = 0.05) {
+  if (!state.sound) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + dur);
+    o.connect(g).connect(ac.destination);
+    o.start(); o.stop(ac.currentTime + dur);
+  } catch (e) {}
+}
+function fanfare(gold) {
+  const notes = gold ? [523, 659, 784, 1047, 784, 1047, 1319] : [392, 330, 262];
+  notes.forEach((f, i) => setTimeout(() => beep(f, 0.15, gold ? "square" : "sawtooth", 0.06), i * 110));
+}
+
+// ---------- logic ----------
+function pick(items) {
+  const total = items.reduce((s, i) => s + i.w, 0);
+  let x = Math.random() * total;
+  for (const it of items) { if ((x -= it.w) <= 0) return it; }
+  return items[items.length - 1];
+}
+
+function itemEl(it) {
+  const d = document.createElement("div");
+  d.className = "item";
+  d.style.setProperty("--c", R[it.r].c);
+  d.innerHTML = `<div class="emo">${it.e}</div><div class="nm">${it.n}</div>`;
+  return d;
+}
+
+function fillStrip(winner) {
+  const strip = $("strip");
+  strip.style.transition = "none";
+  strip.style.transform = "translateX(0)";
+  strip.innerHTML = "";
+  const items = CASES[state.cur].items;
+  const N = 60, WIN = 52;
+  for (let i = 0; i < N; i++) strip.appendChild(itemEl(i === WIN && winner ? winner : pick(items)));
+  return WIN;
+}
+
+function spin() {
+  if (state.spinning) return;
+  const c = CASES[state.cur];
+  if (state.bal < c.price) return;
+  state.bal -= c.price; render();
+  state.spinning = true; $("spin").disabled = true;
+  $("spam").innerHTML = "КРУТИМ... КРУТИМ... [[ДЕНЬГИ УЖЕ НЕ ВЕРНУТЬ]]...";
+
+  const winner = pick(c.items);
+  const idx = fillStrip(winner);
+  const strip = $("strip");
+  const first = strip.children[0];
+  const w = first.offsetWidth + parseFloat(getComputedStyle(first).marginRight);
+  const center = strip.parentElement.offsetWidth / 2;
+  const jitter = (Math.random() - 0.5) * (first.offsetWidth * 0.8);
+  const target = idx * w + first.offsetWidth / 2 - center + jitter;
+  const dur = 6200;
+
+  strip.offsetHeight; // reflow
+  strip.style.transition = `transform ${dur}ms cubic-bezier(.12,.72,.08,1)`;
+  strip.style.transform = `translateX(${-target}px)`;
+
+  // ticks
+  let last = -1;
+  const t0 = performance.now();
+  (function loop(now) {
+    const m = new DOMMatrix(getComputedStyle(strip).transform);
+    const cell = Math.floor((-m.m41 + center) / w);
+    if (cell !== last) { last = cell; beep(900 + Math.random() * 200, 0.03); }
+    if (now - t0 < dur) requestAnimationFrame(loop);
+  })(t0);
+
+  setTimeout(() => {
+    state.spinning = false; $("spin").disabled = false;
+    showWin(winner);
+  }, dur + 200);
+}
+
+function showWin(it) {
+  pending = it;
+  $("card").style.setProperty("--c", R[it.r].c);
+  $("wEmo").textContent = it.e;
+  $("wRar").textContent = R[it.r].name;
+  $("wName").textContent = it.n;
+  $("wVal").textContent = `ЦЕНА: ${it.v} KROMER`;
+  $("modal").classList.add("show");
+  const lines = LINES[it.r];
+  $("spam").innerHTML = lines[Math.floor(Math.random() * lines.length)];
+  const legend = it.r === "legend";
+  $("card").classList.toggle("legend", legend);
+  $("sell").style.display = legend ? "none" : "";
+  $("tgBtn").style.display = legend ? "" : "none";
+  if (legend) $("wCode").textContent = it.code || floppyCode();
+  $("wVal").textContent = legend ? "ЦЕНА: [[БЕСЦЕННО]]" : `ЦЕНА: ${it.v} KROMER`;
+  fanfare(it.r === "gold" || legend);
+  if (it.r === "gold") pipisRain(["🥚", "💰"]);
+  if (legend) { pipisRain(["💾", "💾", "✨", "💰"], 80); setTimeout(() => fanfare(true), 900); }
+}
+
+// код для проверки скриншота: checkFloppy("FLOPPY-...") в консоли
+const FSALT = "big-shot-1997";
+function fhash(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return (h >>> 0).toString(36).toUpperCase().padStart(7, "0").slice(-6);
+}
+function floppyCode() {
+  const t = Date.now().toString(36).toUpperCase();
+  return `FLOPPY-${t}-${fhash(t + FSALT)}`;
+}
+window.checkFloppy = (code) => {
+  const m = /^FLOPPY-([0-9A-Z]+)-([0-9A-Z]{6})$/.exec(String(code).trim().toUpperCase());
+  if (!m || fhash(m[1] + FSALT) !== m[2]) return "ФЕЙК";
+  return "ОК, выпала " + new Date(parseInt(m[1], 36)).toLocaleString("ru-RU");
+};
+
+function pipisRain(set, n = 40) {
+  const rain = $("rain");
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement("span");
+    s.textContent = set[Math.floor(Math.random() * set.length)];
+    s.style.left = Math.random() * 100 + "vw";
+    s.style.animationDuration = 2 + Math.random() * 2.5 + "s";
+    s.style.animationDelay = Math.random() * 1.2 + "s";
+    rain.appendChild(s);
+    setTimeout(() => s.remove(), 6000);
+  }
+}
+
+function closeWin(sell) {
+  if (!pending) return;
+  if (sell) { state.bal += pending.v; beep(1200, 0.08); }
+  else state.inv.unshift(pending.r === "legend" ? { ...pending, code: $("wCode").textContent } : pending);
+  pending = null;
+  $("modal").classList.remove("show");
+  render();
+}
+
+function sellInv(i) {
+  if (state.inv[i].r === "legend") { showWin(state.inv.splice(i, 1)[0]); return; }
+  const it = state.inv.splice(i, 1)[0];
+  state.bal += it.v; beep(1200, 0.08);
+  render();
+}
+
+const fmtP = (p) => p >= 1 ? p.toFixed(1) : p >= 0.1 ? p.toFixed(2) : p.toFixed(3);
+
+function render() {
+  const c = CASES[state.cur];
+  $("bal").textContent = state.bal;
+  $("spin").textContent = `ОТКРЫТЬ ЗА ${c.price}`;
+  $("spin").disabled = state.spinning || state.bal < c.price;
+  const broke = !state.spinning && state.bal < c.price && state.inv.length === 0;
+  $("free").style.display = broke ? "block" : "none";
+  if (broke && !pending) $("spam").innerHTML = "КОНЧИЛИСЬ ДЕНЬГИ? НЕ ПРОБЛЕМА! ЖМИ <span class='hl'>[[FREE KROMER]]</span>! БЕЗ [[ПОДВОХА]]!";
+
+  const total = c.items.reduce((s, i) => s + i.w, 0);
+  $("odds").innerHTML = c.items.map(it =>
+    `<div class="odd" style="--c:${R[it.r].c}">${it.e} ${it.n} — ${fmtP(it.w / total * 100)}%</div>`
+  ).join("");
+
+  const inv = $("inv");
+  if (!state.inv.length) { inv.innerHTML = `<div class="empty">ПУСТО. КАК И ТВОИ [[ПЕРСПЕКТИВЫ]].</div>`; return; }
+  inv.innerHTML = "";
+  state.inv.forEach((it, i) => {
+    const d = itemEl(it);
+    d.insertAdjacentHTML("beforeend", `<div class="val">${it.v} K</div>`);
+    if (it.r === "legend") d.classList.add("nosell");
+    d.onclick = () => sellInv(i);
+    inv.appendChild(d);
+  });
+}
+
+// ---------- events ----------
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+  if (state.spinning) return;
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  t.classList.add("active");
+  state.cur = t.dataset.case;
+  fillStrip();
+  $("spam").innerHTML = state.cur === "pipis"
+    ? "О-О-О! <span class='pk'>PIPIS DROP</span>! КЕЙС ДЛЯ ТЕХ, КТО ЗНАЕТ ТОЛК В [[ЯЙЦАХ]]!"
+    : "MUSOR DROP — ТВОЙ ВЫСОКИЙ ШАНС НА [[БОЛЬШОЙ ДРОП]]!";
+  render();
+});
+$("spin").onclick = spin;
+$("keep").onclick = () => closeWin(false);
+$("sell").onclick = () => closeWin(true);
+$("free").onclick = () => {
+  state.bal += 50; render();
+  $("spam").innerHTML = "ВОТ ТВОИ [[БЕСПЛАТНЫЕ]] 50 KROMER! (ПЛАТИТЬ ПОТОМ [[ДУШОЙ]])";
+};
+$("sound").onclick = () => {
+  state.sound = !state.sound;
+  $("sound").textContent = state.sound ? "🔊" : "🔇";
+};
+document.addEventListener("keydown", e => {
+  if (e.code === "Space" && !$("modal").classList.contains("show")) { e.preventDefault(); spin(); }
+  if (e.code === "Enter" && $("modal").classList.contains("show")) closeWin(false);
+});
+
+fillStrip();
+render();
+</script>
+</body>
+</html>
